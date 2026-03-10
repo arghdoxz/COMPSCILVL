@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompSci Leveling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="logo">&#x2694;&#xFE0F; CompSci Leveling</div>
+    <div class="stats">
+        <div class="stat-item">&#x26A1; <span id="xp">0</span> XP</div>
+        <div class="stat-item">&#x1F3C6; Level <span id="level">1</span></div>
+        <div class="stat-item">&#x1F4DC; <span id="completedCount">0</span> Done</div>
+    </div>
+</header>
+
+<!-- SCREEN: MAIN MENU -->
+<div id="screen-main" class="screen active">
+    <div class="container">
+        <!-- ══ ABOUT SECTION ══ -->
+        <section class="about-section">
+            <div class="about-eyebrow">&#x2694;&#xFE0F; Gamified Learning Platform</div>
+            <h1 class="about-main-title">Welcome to <span class="about-gradient">CompSci Leveling</span></h1>
+            <p class="about-tagline">The gamified way to master web development. No boring lectures. No passive videos.<br>Just you, the code, and the grind.</p>
+
+            <div class="about-grid">
+                <div class="about-block about-block-wide">
+                    <h2 class="about-block-title">&#x1F4D6; What is CompSci Leveling?</h2>
+                    <p class="about-block-text"><strong>CompSci Leveling</strong> is a gamified learning website where you master <strong>HTML</strong> and <strong>JavaScript</strong> &mdash; the two core building blocks of every website &mdash; by completing ranked modules, exactly like leveling up in an RPG. Forget passive reading. Here, you earn <strong>XP</strong>, unlock harder modules, trigger random <strong>Gate events</strong>, and climb the rank ladder from <strong>F all the way to the legendary S Rank</strong>.</p>
+                </div>
+                <div class="about-block">
+                    <div class="about-feat-icon">&#x1F4DA;</div>
+                    <h3 class="about-feat-title">Study First</h3>
+                    <p class="about-feat-text">Every module opens with a <strong>reviewer</strong> &mdash; a full lesson with explanations, code examples, and tips. Read it, understand it, then take the quiz.</p>
+                </div>
+                <div class="about-block">
+                    <div class="about-feat-icon">&#x2753;</div>
+                    <h3 class="about-feat-title">Quiz to Earn XP</h3>
+                    <p class="about-feat-text">Answer 5 questions per module. Each correct answer earns <strong>XP</strong>. Higher rank modules reward more XP. Stack it up to rank up.</p>
+                </div>
+                <div class="about-block">
+                    <div class="about-feat-icon">&#x26A1;</div>
+                    <h3 class="about-feat-title">Gate Events</h3>
+                    <p class="about-feat-text">A mysterious <strong>Gate</strong> may randomly appear when you enter a module. Accept the challenge and earn <strong>+50 bonus XP</strong>. Decline and move on.</p>
+                </div>
+                <div class="about-block">
+                    <div class="about-feat-icon">&#x1F9EA;</div>
+                    <h3 class="about-feat-title">Live Sandbox</h3>
+                    <p class="about-feat-text">Practice what you learn in the built-in <strong>code editor</strong> &mdash; HTML, CSS, and JS panes with a live preview. Write. Break. Fix. Repeat.</p>
+                </div>
+            </div>
+
+            <div class="about-rank-bar">
+                <h2 class="about-block-title" style="margin-bottom:10px;">&#x1F3C6; The Rank System</h2>
+                <p class="about-block-text" style="margin-bottom:20px;">Complete modules, earn XP, and rank up. Each rank unlocks harder content and bigger rewards. Can you reach <strong>S Rank</strong>?</p>
+                <div class="about-ranks-row">
+                    <div class="about-rank-pill rank-f">F</div><div class="about-rank-arrow">&#x2192;</div>
+                    <div class="about-rank-pill rank-e">E</div><div class="about-rank-arrow">&#x2192;</div>
+                    <div class="about-rank-pill rank-d">D</div><div class="about-rank-arrow">&#x2192;</div>
+                    <div class="about-rank-pill rank-c">C</div><div class="about-rank-arrow">&#x2192;</div>
+                    <div class="about-rank-pill rank-b">B</div><div class="about-rank-arrow">&#x2192;</div>
+                    <div class="about-rank-pill rank-a">A</div><div class="about-rank-arrow">&#x2192;</div>
+                    <div class="about-rank-pill rank-s about-rank-s-glow">S</div>
+                </div>
+            </div>
+
+            <div class="about-steps">
+                <h2 class="about-block-title" style="margin-bottom:16px;">&#x1F5FA;&#xFE0F; How to Get Started</h2>
+                <div class="about-steps-row">
+                    <div class="about-step"><div class="about-step-n">1</div><p>Pick a track below &mdash; <strong>HTML</strong> or <strong>JavaScript</strong></p></div>
+                    <div class="about-step"><div class="about-step-n">2</div><p>Open a module and <strong>read the reviewer</strong></p></div>
+                    <div class="about-step"><div class="about-step-n">3</div><p><strong>Take the quiz</strong> and earn XP</p></div>
+                    <div class="about-step"><div class="about-step-n">4</div><p>Grind until you hit <strong>S Rank</strong></p></div>
+                </div>
+            </div>
+
+            <div class="about-divider"></div>
+        </section>
+
+        <div class="hero">
+            <h1 class="hero-title">Choose Your Path</h1>
+            <p class="hero-sub">Master HTML or JavaScript. Climb from F to S rank.</p>
+        </div>
+        <div class="track-select">
+            <div class="track-card" id="btn-html-track" onclick="selectTrack('html')">
+                <div class="track-icon">&#x1F5A5;&#xFE0F;</div>
+                <div class="track-rank-badge rank-f">F&#8594;S</div>
+                <h2 class="track-name">HTML Track</h2>
+                <p class="track-desc">Build the web from scratch. Learn structure, semantics, and presentation.</p>
+                <div class="track-modules">6 Modules</div>
+                <div class="track-progress-bar"><div class="track-progress-fill" id="html-progress" style="width:0%"></div></div>
+            </div>
+            <div class="track-card" id="btn-js-track" onclick="selectTrack('js')">
+                <div class="track-icon">&#x26A1;</div>
+                <div class="track-rank-badge rank-f">F&#8594;S</div>
+                <h2 class="track-name">JavaScript Track</h2>
+                <p class="track-desc">Bring the web to life. Learn logic, functions, and programming fundamentals.</p>
+                <div class="track-modules">6 Modules</div>
+                <div class="track-progress-bar"><div class="track-progress-fill" id="js-progress" style="width:0%"></div></div>
+            </div>
+            <div class="track-card track-card-s locked" id="btn-s-track" onclick="selectTrack('s')">
+                <div class="track-icon">&#x1F31F;</div>
+                <div class="track-rank-badge rank-s">S RANK</div>
+                <h2 class="track-name">S Rank Challenge</h2>
+                <p class="track-desc">The ultimate test. Complete both tracks to unlock this final challenge.</p>
+                <div class="track-modules">&#x1F512; Locked</div>
+            </div>
+        </div>
+
+        <!-- SANDBOX BUTTON -->
+        <div class="sandbox-launcher" onclick="openSandbox()">
+            <span>&#x1F9EA;</span>
+            <div>
+                <strong>Code Sandbox</strong>
+                <p>Test your HTML, CSS &amp; JavaScript live</p>
+            </div>
+            <span class="arrow">&#x279C;</span>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN: TRACK VIEW -->
+<div id="screen-track" class="screen">
+    <div class="container">
+        <button class="back-btn" onclick="goBack('main')">&#x2190; Back</button>
+        <div class="track-header">
+            <h2 id="track-title" class="track-view-title"></h2>
+            <p id="track-subtitle" class="track-view-sub"></p>
+        </div>
+        <div id="modules-container" class="modules-list"></div>
+    </div>
+</div>
+
+<!-- SCREEN: REVIEWER -->
+<div id="screen-reviewer" class="screen">
+    <div class="container">
+        <button class="back-btn" onclick="goBack('track')">&#x2190; Back to Modules</button>
+        <div class="reviewer-header">
+            <div class="reviewer-rank-badge" id="reviewer-rank"></div>
+            <h2 id="reviewer-title" class="reviewer-title"></h2>
+            <p id="reviewer-desc" class="reviewer-desc"></p>
+        </div>
+        <div id="reviewer-content" class="reviewer-body"></div>
+        <div class="reviewer-actions">
+            <button class="btn btn-sandbox" onclick="openSandbox()">&#x1F9EA; Try in Sandbox</button>
+            <button class="btn btn-primary" onclick="startQuiz()">&#x27A1;&#xFE0F; Start Quiz</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN: QUIZ -->
+<div id="screen-quiz" class="screen">
+    <div class="container quiz-wrap">
+        <div class="quiz-topbar">
+            <button class="back-btn" onclick="goBack('reviewer')">&#x2190; Exit Quiz</button>
+            <span id="quiz-counter" class="quiz-counter">Question 1 / 5</span>
+            <span id="quiz-score-live" class="quiz-score-live">&#x2B50; 0</span>
+        </div>
+        <div class="quiz-card">
+            <div class="quiz-rank-tag" id="quiz-rank-tag"></div>
+            <h3 id="quiz-title-label" class="quiz-mod-title"></h3>
+            <p id="quiz-question" class="quiz-question"></p>
+            <div id="quiz-options" class="quiz-options"></div>
+            <div id="quiz-feedback" class="quiz-feedback hidden"></div>
+            <button class="btn btn-primary" id="quiz-submit" onclick="submitAnswer()" disabled>Submit Answer</button>
+        </div>
+        <div class="quiz-progress-bar"><div id="quiz-progress-fill" class="quiz-progress-fill" style="width:0%"></div></div>
+    </div>
+</div>
+
+<!-- SCREEN: QUIZ RESULT -->
+<div id="screen-result" class="screen">
+    <div class="container result-wrap">
+        <div class="result-card" id="result-card">
+            <div class="result-rank-icon" id="result-rank-icon"></div>
+            <h2 id="result-title" class="result-title"></h2>
+            <p id="result-msg" class="result-msg"></p>
+            <div class="result-stats">
+                <div class="result-stat"><span id="res-score">0</span><small>Score</small></div>
+                <div class="result-stat"><span id="res-xp">+0</span><small>XP Earned</small></div>
+                <div class="result-stat"><span id="res-rank">F</span><small>Rank</small></div>
+            </div>
+            <div class="result-actions">
+                <button class="btn btn-outline" onclick="goBack('reviewer')">&#x1F4D6; Review Again</button>
+                <button class="btn btn-primary" onclick="goBack('track')">&#x1F3AF; Next Module</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN: SANDBOX -->
+<div id="screen-sandbox" class="screen">
+    <div class="sandbox-header">
+        <button class="back-btn" onclick="goBack('main')">&#x2190; Back</button>
+        <h2 class="sandbox-title">&#x1F9EA; Code Sandbox</h2>
+        <button class="btn btn-run" onclick="runSandbox()">&#x25B6; Run</button>
+    </div>
+    <div class="sandbox-layout">
+        <div class="sandbox-editors">
+            <div class="editor-pane">
+                <div class="editor-tab active">HTML</div>
+                <textarea id="sandbox-html" class="code-editor" spellcheck="false" placeholder="Write your HTML here..."></textarea>
+            </div>
+            <div class="editor-pane">
+                <div class="editor-tab css-tab">CSS</div>
+                <textarea id="sandbox-css" class="code-editor" spellcheck="false" placeholder="Write your CSS here..."></textarea>
+            </div>
+            <div class="editor-pane">
+                <div class="editor-tab js-tab">JS</div>
+                <textarea id="sandbox-js" class="code-editor" spellcheck="false" placeholder="Write your JavaScript here..."></textarea>
+            </div>
+        </div>
+        <div class="sandbox-preview">
+            <div class="preview-label">&#x1F441;&#xFE0F; Live Preview</div>
+            <iframe id="sandbox-iframe" class="preview-frame"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- GATE OVERLAY -->
+<div class="gate-overlay" id="gateOverlay">
+    <div id="gateAnimation">
+        <div class="gate-circles-container">
+            <div class="gate-circle circle-1"></div>
+            <div class="gate-circle circle-2"></div>
+            <div class="gate-circle circle-3"></div>
+        </div>
+        <p class="gate-text">A Gate is Opening...</p>
+    </div>
+    <div id="gateModal" class="gate-modal hidden">
+        <div class="gate-symbol">&#x26A1;</div>
+        <h2 class="gate-title">&#x26A1; GATE DISCOVERED &#x26A1;</h2>
+        <p style="color:#e9d5ff;font-size:18px;margin-bottom:10px;">A mysterious portal has appeared!</p>
+        <p style="color:#c4b5fd;margin-bottom:20px;">Face special challenges and earn bonus XP</p>
+        <div class="gate-info">
+            <div class="gate-info-row"><span style="color:#c4b5fd;">Gate Rank:</span><span style="color:#fbbf24;font-weight:bold;">&#x2605; Special Event</span></div>
+            <div class="gate-info-row"><span style="color:#c4b5fd;">Reward:</span><span style="color:#22c55e;font-weight:bold;">+50 XP</span></div>
+            <div class="gate-info-row"><span style="color:#c4b5fd;">Difficulty:</span><span style="color:#ef4444;font-weight:bold;">Unknown</span></div>
+        </div>
+        <div class="gate-buttons">
+            <button class="gate-btn gate-enter" onclick="enterGate()">&#x2694;&#xFE0F; Enter Gate</button>
+            <button class="gate-btn gate-decline" onclick="declineGate()">Decline</button>
+        </div>
+        <p style="font-size:12px;color:#9ca3af;">Gates appear randomly with a 10% chance</p>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
