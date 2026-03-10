@@ -1177,6 +1177,11 @@ function renderReviewer(mod) {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  QUIZ
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function selectRandomQuestions(pool, count) {
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
 function startQuiz() {
     const mod = state.currentModule;
     state.quiz = { q: 0, correct: 0, answered: 0, selected: null, questions: [] };
@@ -1231,7 +1236,7 @@ function loadQuestion() {
 
 function submitAnswer() {
     const mod = state.currentModule;
-    const q = mod.questions[state.quiz.q];
+    const q = state.quiz.questions[state.quiz.q];
     const correct = state.quiz.selected === q.c;
 
     state.quiz.answered++;
@@ -1256,7 +1261,7 @@ function submitAnswer() {
 
     document.getElementById('quiz-score-live').innerHTML = `&#x2B50; ${state.quiz.correct}`;
 
-    const isLast = state.quiz.q >= mod.questions.length - 1;
+    const isLast = state.quiz.q >= state.quiz.questions.length - 1;
     const btn = document.getElementById('quiz-submit');
     btn.disabled = false;
     btn.textContent = isLast ? 'Finish Quiz' : 'Next Question';
