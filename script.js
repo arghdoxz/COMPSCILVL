@@ -7,7 +7,9 @@ const state = {
     completed: [],
     currentTrack: null,
     currentModule: null,
-    quiz: { q: 0, correct: 0, answered: 0, selected: null, questions: [] }
+    quiz: { q: 0, correct: 0, answered: 0, selected: null, questions: [] },
+    // each track keeps its own EXP storage (cumulative points earned)
+    expStorage: { html: 0, js: 0 }
 };
 
 const RANKS = ['F','E','D','C','B','A','S'];
@@ -1118,6 +1120,7 @@ function selectTrack(trackId) {
     state.currentTrack = trackId;
     renderTrack(trackId);
     showScreen('track');
+    updateHeaderStats(); // make sure xp/level reflect the newly chosen track
 }
 
 function renderTrack(trackId) {
@@ -1240,7 +1243,11 @@ function submitAnswer() {
     const correct = state.quiz.selected === q.c;
 
     state.quiz.answered++;
-    if (correct) { state.quiz.correct++; state.trackXp[state.currentTrack] += XP_PER_CORRECT; }
+    if (correct) { 
+        state.quiz.correct++; 
+        state.trackXp[state.currentTrack] += XP_PER_CORRECT; 
+        state.expStorage[state.currentTrack] += XP_PER_CORRECT; // record to EXP storage
+    }
 
     // Style options
     const opts = document.querySelectorAll('.option');
@@ -1319,10 +1326,34 @@ function finishQuiz() {
 //  UI UPDATES
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateHeaderStats() {
-    const currentXp = state.trackXp[state.currentTrack] || 0;
+    // determine which XP value to show: total on main, track-specific when in a track
+    let currentXp;
+    if (state.currentTrack) {
+        currentXp = state.expStorage[state.currentTrack] || 0;
+    } else {
+        currentXp = (state.expStorage.html || 0) + (state.expStorage.js || 0);
+    }
     document.getElementById('xp').textContent = currentXp;
     document.getElementById('level').textContent = Math.floor(currentXp / 100) + 1;
     document.getElementById('completedCount').textContent = state.completed.length;
+
+    // track-specific EXP elements should only appear when a track is active
+    const expHtmlEl = document.getElementById('exp-html');
+    const expJsEl   = document.getElementById('exp-js');
+    if (expHtmlEl && expJsEl) {
+        if (state.currentTrack === 'html') {
+            expHtmlEl.parentElement.style.display = 'flex';
+            expJsEl.parentElement.style.display = 'none';
+            expHtmlEl.textContent = state.expStorage.html;
+        } else if (state.currentTrack === 'js') {
+            expHtmlEl.parentElement.style.display = 'none';
+            expJsEl.parentElement.style.display = 'flex';
+            expJsEl.textContent = state.expStorage.js;
+        } else {
+            expHtmlEl.parentElement.style.display = 'none';
+            expJsEl.parentElement.style.display = 'none';
+        }
+    }
 }
 
 function updateTrackProgress() {
@@ -1422,8 +1453,15 @@ function showGate(mod) {
 function enterGate() {
     document.getElementById('gateOverlay').style.display = 'none';
     if (pendingMod) {
-        state.trackXp[state.currentTrack] += 50;
+        // award a hefty 100 XP bonus to both tracks no matter which one triggered the gate
+        // gate bonus: 100 XP to both tracks
+        state.trackXp.html += 100;
+        state.trackXp.js  += 100;
+        // also add to the EXP storage for both tracks
+        state.expStorage.html += 100;
+        state.expStorage.js  += 100;
         updateHeaderStats();
+        updateTrackProgress(); // in case the bonus unlocked modules on the other track
         launchGateQuiz(pendingMod);
         pendingMod = null;
     }
@@ -1446,6 +1484,7 @@ function launchGateQuiz(originMod) {
         });
     });
 
+    // shuffle pool in place
     for (let i = allQuestions.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
@@ -1465,7 +1504,7 @@ function launchGateQuiz(originMod) {
     };
 
     state.currentModule = gateMod;
-    state.quiz = { q: 0, correct: 0, answered: 0, selected: null };
+    state.quiz = { q: 0, correct: 0, answered: 0, selected: null, questions: gateQuestions };
 
     const rankTag = document.getElementById('quiz-rank-tag');
     rankTag.innerHTML = '&#x26A1; GATE';

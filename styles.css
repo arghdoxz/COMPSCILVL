@@ -62,7 +62,7 @@ body::before {
     -webkit-text-fill-color: transparent;
 }
 
-.stats { display: flex; gap: 12px; }
+.stats { display: flex; gap: 12px; flex-wrap: wrap; }
 
 .stat-item {
     font-family: 'Orbitron', sans-serif;
