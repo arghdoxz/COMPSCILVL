@@ -2,19 +2,19 @@
 //  STATE
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const state = {
-    xp: 0,
+    trackXp: { html: 0, js: 0 },
     level: 1,
     completed: [],
     currentTrack: null,
     currentModule: null,
-    quiz: { q: 0, correct: 0, answered: 0, selected: null }
+    quiz: { q: 0, correct: 0, answered: 0, selected: null, questions: [] }
 };
 
 const RANKS = ['F','E','D','C','B','A','S'];
 const RANK_COLORS = { F:'rank-f', E:'rank-e', D:'rank-d', C:'rank-c', B:'rank-b', A:'rank-a', S:'rank-s' };
 const RANK_ROW = { F:'rank-f-row', E:'rank-e-row', D:'rank-d-row', C:'rank-c-row', B:'rank-b-row', A:'rank-a-row', S:'rank-s-row' };
-const XP_PER_CORRECT = 15;
-const RANK_XP_REQ = { F: 0, E: 75, D: 150, C: 250, B: 400, A: 600, S: 0 };
+const XP_PER_CORRECT = 10;
+const RANK_XP_REQ = { F: 0, E: 150, D: 300, C: 500, B: 800, A: 1200, S: 0 };
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  TRACK DATA
@@ -81,7 +81,18 @@ const tracks = {
     { q: "Where does the &lt;meta charset='UTF-8'&gt; tag go?", o: ["Inside &lt;body&gt;","Inside &lt;head&gt;","After &lt;/html&gt;","Inside &lt;title&gt;"], c: 1 },
     { q: "How many &lt;h1&gt; tags should a well-structured page ideally have?", o: ["As many as needed","Two","Only one","None, use &lt;h2&gt; instead"], c: 2 },
     { q: "What is the purpose of the lang attribute in &lt;html lang='en'&gt;?", o: ["Sets the text color","Tells the browser the page language","Makes text larger","Connects to a language library"], c: 1 },
-    { q: "Which of the following is the correct nesting order?", o: ["&lt;body&gt; inside &lt;head&gt;","&lt;html&gt; inside &lt;body&gt;","&lt;head&gt; and &lt;body&gt; inside &lt;html&gt;","&lt;title&gt; inside &lt;body&gt;"], c: 2 }
+    { q: "Which of the following is the correct nesting order?", o: ["&lt;body&gt; inside &lt;head&gt;","&lt;html&gt; inside &lt;body&gt;","&lt;head&gt; and &lt;body&gt; inside &lt;html&gt;","&lt;title&gt; inside &lt;body&gt;"], c: 2 },
+    { q: "What does &lt;!DOCTYPE html&gt; tell the browser?", o: ["The file is a JavaScript file","This is an HTML5 document","The page encoding","The browser version needed"], c: 1 },
+    { q: "Which section of HTML contains metadata about the page?", o: ["&lt;body&gt;","&lt;head&gt;","&lt;meta&gt;","&lt;info&gt;"], c: 1 },
+    { q: "What file extension should HTML files have?", o: [".htm or .html",".html5",".doc",".web"], c: 0 },
+    { q: "Why is UTF-8 encoding important?", o: ["It makes the website faster","It allows special characters and emojis to display correctly","It improves SEO","It reduces file size"], c: 1 },
+    { q: "What is the purpose of the &lt;head&gt; section?", o: ["To display the header of the page","To hold metadata, title, and linked resources","To contain all visible content","To define navigation links"], c: 1 },
+    { q: "Which heading tag is the smallest?", o: ["&lt;h1&gt;","&lt;h3&gt;","&lt;h6&gt;","&lt;heading&gt;"], c: 2 },
+    { q: "Can you place the &lt;title&gt; tag inside the &lt;body&gt;?", o: ["Yes, anywhere works","No, it must be in &lt;head&gt;","Only in the first line of body","It doesn't matter"], c: 1 },
+    { q: "What does a browser do if &lt;!DOCTYPE html&gt; is missing?", o: ["Shows an error","Uses 'quirks mode' and may behave unexpectedly","Ignores the page entirely","Automatically adds it"], c: 1 },
+    { q: "Which attribute specifies the language of the document?", o: ["language","locale","lang","dialect"], c: 2 },
+    { q: "Is &lt;meta charset='UTF-8'&gt; optional?", o: ["Yes, not necessary","No, it's required for proper character display","Only for international sites","Only for mobile devices"], c: 1 },
+    { q: "What is the role of the &lt;html&gt; root element?", o: ["Just a container, no real purpose","Tells browser this is HTML and wraps all content","Creates the page title","Defines page styling"], c: 1 }
 ]
             },
             {
@@ -174,7 +185,18 @@ const tracks = {
     { q: "Which tag is used for header cells in a table?", o: ["&lt;td&gt;","&lt;header&gt;","&lt;th&gt;","&lt;tc&gt;"], c: 2 },
     { q: "What does the colspan attribute do in a table?", o: ["Sets the column color","Makes a cell span multiple columns","Adds a border","Sets column width"], c: 1 },
     { q: "Which list type is best for step-by-step instructions?", o: ["&lt;ul&gt;","&lt;dl&gt;","&lt;ol&gt;","&lt;list&gt;"], c: 2 },
-    { q: "What does &lt;del&gt; visually render as?", o: ["Bold text","Underlined text","Strikethrough text","Italic text"], c: 2 }
+    { q: "What does &lt;del&gt; visually render as?", o: ["Bold text","Underlined text","Strikethrough text","Italic text"], c: 2 },
+    { q: "What is the &lt;em&gt; tag used for?", o: ["Emphasis with semantic meaning","Creating empty space","Making text larger","Embedding media"], c: 0 },
+    { q: "Which tag is used for inline styling without semantic meaning?", o: ["&lt;span&gt;","&lt;div&gt;","&lt;style&gt;","&lt;p&gt;"], c: 0 },
+    { q: "What does the &lt;sub&gt; tag do?", o: ["Creates a subscription form","Displays text as subscript","Submits data","Creates a sidebar"], c: 1 },
+    { q: "Which structure groups description terms and definitions?", o: ["&lt;ul&gt;","&lt;ol&gt;","&lt;dl&gt;","&lt;list&gt;"], c: 2 },
+    { q: "What is the &lt;dt&gt; tag used for?", o: ["Data table","Definition term","Data text","Default table"], c: 1 },
+    { q: "Which tag wraps the main data rows in a table?", o: ["&lt;thead&gt;","&lt;tbody&gt;","&lt;tfoot&gt;","&lt;tr&gt;"], c: 1 },
+    { q: "When should you use semantic tags like &lt;strong&gt; instead of &lt;b&gt;?", o: ["Never, they're the same","When the content is truly important","Only in titles","When styling is needed"], c: 1 },
+    { q: "What visual effect does the &lt;mark&gt; tag create?", o: ["Bold text","Underlined text","Highlighted text","Italic text"], c: 2 },
+    { q: "Which tag creates a longer text emphasis with meaning?", o: ["&lt;i&gt;","&lt;em&gt;","&lt;b&gt;","&lt;mark&gt;"], c: 1 },
+    { q: "What does &lt;small&gt; represent semantically?", o: ["Smaller font size only","Fine print or disclaimers","Less important text","Comments"], c: 1 },
+    { q: "How do you create nested lists in HTML?", o: ["Use multiple &lt;ol&gt; tags","Put a list inside another list item","Use &lt;sublist&gt; tag","Lists cannot be nested"], c: 1 }
 ]
             },
             {
@@ -245,7 +267,18 @@ const tracks = {
     { q: "What is the difference between GET and POST methods in a form?", o: ["No difference","GET sends data in URL, POST hides it in request body","POST is faster than GET","GET is only for images"], c: 1 },
     { q: "Which input type allows selecting only ONE option from a group?", o: ["checkbox","select","radio","option"], c: 2 },
     { q: "What attribute on &lt;input&gt; shows hint text before the user types?", o: ["hint","default","placeholder","value"], c: 2 },
-    { q: "Which link href value creates a link to a section on the same page?", o: ["href='page.html'","href='https://site.com'","href='#sectionId'","href='./folder'"], c: 2 }
+    { q: "Which link href value creates a link to a section on the same page?", o: ["href='page.html'","href='https://site.com'","href='#sectionId'","href='./folder'"], c: 2 },
+    { q: "What is the purpose of the alt attribute on images?", o: ["Adds a border to the image","Provides text when image fails or for screen readers","Sets the image size","Changes image color"], c: 1 },
+    { q: "Can the &lt;img&gt; tag have closing tag tags?", o: ["Yes, always","No, it's self-closing","Only in HTML5","Sometimes"], c: 1 },
+    { q: "What does the src attribute specify in an &lt;img&gt; tag?", o: ["The image styling","The path to the image file","The image size","The image caption"], c: 1 },
+    { q: "Which attribute opens a link in a new window?", o: ["target='new'","new='true'","target='_blank'","window='new'"], c: 2 },
+    { q: "How do you create a link to send an email?", o: ["&lt;a href='email:user@site.com'&gt;","&lt;a href='mailto:user@site.com'&gt;","&lt;a email='user@site.com'&gt;","&lt;email href='user@site.com'&gt;"], c: 1 },
+    { q: "What does the download attribute do on a link?", o: ["Disables the link","Makes the browser download the file","Adds a loading indicator","Requires login"], c: 1 },
+    { q: "Which input type is best for email addresses?", o: ["&lt;input type='text'&gt;","&lt;input type='email'&gt;","&lt;input type='string'&gt;","&lt;input type='mail'&gt;"], c: 1 },
+    { q: "What does the &lt;label&gt; tag do?", o: ["Creates a company label","Associates text with a form input","Adds a watermark","Creates a loading label"], c: 1 },
+    { q: "Why should form inputs have associated labels?", o: ["It's just for styling","It improves accessibility and makes labels clickable","It's required by law","It speeds up forms"], c: 1 },
+    { q: "What attribute links a label to an input field?", o: ["name","value","id and for","class"], c: 2 },
+    { q: "Which method is more secure for passwords in forms?", o: ["GET","POST","Both are equal","Neither is secure"], c: 1 }
 ]
             },
             {
@@ -315,7 +348,19 @@ const tracks = {
     { q: "How many times should &lt;main&gt; appear on a single page?", o: ["As many as needed","Twice","Only once","Never, use &lt;div&gt; instead"], c: 2 },
     { q: "What is the correct CSS selector for a class named 'card'?", o: ["#card","card","*card",".card"], c: 3 },
     { q: "Which tag is best for a self-contained blog post?", o: ["&lt;section&gt;","&lt;div&gt;","&lt;article&gt;","&lt;aside&gt;"], c: 2 },
-    { q: "Can one HTML element have multiple classes?", o: ["No, only one class is allowed","Yes, separated by spaces","Yes, but only two maximum","Only if using JavaScript"], c: 1 }
+    { q: "Can one HTML element have multiple classes?", o: ["No, only one class is allowed","Yes, separated by spaces","Yes, but only two maximum","Only if using JavaScript"], c: 1 },
+    { q: "Which tag represents a top-level header?", o: ["&lt;top&gt;","&lt;header&gt;","&lt;head&gt;","&lt;h1&gt;"], c: 1 },
+    { q: "What is the purpose of the &lt;nav&gt; tag?", o: ["Creates a navigation menu","Defines naval elements","Marks the start of text","Adds scrolling behavior"], c: 0 },
+    { q: "Should a &lt;div&gt; be used for navigation?", o: ["Yes, always","No, use &lt;nav&gt;","Only for nested navigation","Both work the same"], c: 1 },
+    { q: "What is the difference between &lt;section&gt; and &lt;article&gt;?", o: ["No difference","Article is self-contained, section groups related content","Section is larger","They can't be nested"], c: 1 },
+    { q: "When should you use an &lt;aside&gt; tag?", o: ["For main content","For sidebar content or tangentially related info","For footer information","For navigation only"], c: 1 },
+    { q: "What does inline styling mean?", o: ["Styling applied inside external CSS","Style attribute directly on an HTML element","Importing CSS in the head","Using CSS classes"], c: 1 },
+    { q: "Is it a good practice to use inline styles?", o: ["Yes, it's the best way","No, it's hard to maintain","Only for emergency fixes","Never, use external CSS"], c: 2 },
+    { q: "How do you add a comment in HTML?", o: ["// Comment","/* Comment */","&lt;!-- Comment --&gt;","# Comment"], c: 2 },
+    { q: "What is the difference between id and class?", o: ["No difference","id is unique, class can be reused","class is unique, id can be reused","id is for CSS, class is for JavaScript"], c: 1 },
+    { q: "Can a page have multiple &lt;header&gt; tags?", o: ["No, only one per page","Yes, can be used for sections too","Only on the homepage","Never allowed"], c: 1 },
+    { q: "What does the &lt;section&gt; tag require?", o: ["A heading inside","An id attribute","Nothing required","JavaScript handler"], c: 0 },
+    { q: "Which semantic tag should wrap your main page content?", o: ["&lt;section&gt;","&lt;main&gt;","&lt;body&gt;","&lt;container&gt;"], c: 1 }
 ]
             },
             {
@@ -381,7 +426,18 @@ const tracks = {
     { q: "What is the purpose of the Open Graph meta tags?", o: ["They speed up the page","They control how the page looks when shared on social media","They add animations","They replace the title tag"], c: 1 },
     { q: "When should you use ARIA roles?", o: ["Always on every element","Only on images","When semantic HTML alone cannot convey the role","Never, CSS handles this"], c: 2 },
     { q: "What does the poster attribute on &lt;video&gt; do?", o: ["Adds a watermark","Sets the video speed","Shows a thumbnail image before the video plays","Adds subtitles"], c: 2 },
-    { q: "Which of these is a legal requirement in many countries regarding websites?", o: ["Using only one font","Having a dark mode","Web accessibility for disabled users","Using HTTPS only"], c: 2 }
+    { q: "Which of these is a legal requirement in many countries regarding websites?", o: ["Using only one font","Having a dark mode","Web accessibility for disabled users","Using HTTPS only"], c: 2 },
+    { q: "What meta tag should describe your webpage in 160 characters?", o: ["&lt;meta keywords&gt;","&lt;meta description&gt;","&lt;meta content&gt;","&lt;meta summary&gt;"], c: 1 },
+    { q: "Does good HTML structure help with SEO?", o: ["No, only JavaScript matters","Yes, it's one of the most important SEO factors","Not really, keywords are all that matters","Only if you use tables"], c: 1 },
+    { q: "What does &lt;video&gt; controls attribute do?", o: ["Adds styling","Shows play, pause, and volume buttons","Activates fullscreen mode","Enables subtitles"], c: 1 },
+    { q: "Which attribute makes an image lazy-load?", o: ["async","defer","lazy","load='lazy'"], c: 2 },
+    { q: "What is the purpose of the &lt;picture&gt; element?", o: ["Shows pictures in a gallery","Provides multiple images for different screen sizes","Creates an image editor","Adds photo filters"], c: 1 },
+    { q: "How many heading levels can you have in HTML?", o: ["4","6","10","Unlimited"], c: 1 },
+    { q: "What is the first meta tag that should be in the &lt;head&gt;?", o: ["&lt;title&gt;","&lt;meta charset&gt;","&lt;meta viewport&gt;","&lt;link&gt;"], c: 1 },
+    { q: "Which attribute improves accessibility of buttons?", o: ["label","aria-label","title","hint"], c: 1 },
+    { q: "Can you nest headings in HTML?", o: ["No, headings cannot be nested","Yes, but follow hierarchy","Only h1 can contain others","Only with CSS classes"], c: 1 },
+    { q: "What is the &lt;time&gt; element used for?", o: ["Measuring page load time","Displaying time on a clock","Marking dates and times semantically","Setting timeouts"], c: 2 },
+    { q: "Does HTML7 exist?", o: ["Yes, it was released in 2020","No, we're on HTML5 with continuous updates","It's coming next year","HTML goes up to 10"], c: 1 }
 ]
             },
             {
@@ -471,7 +527,18 @@ localStorage.removeItem('username');           // Delete</pre>
     { q: "Which input type is best for a phone number field on mobile?", o: ["type='text'","type='number'","type='tel'","type='phone'"], c: 2 },
     { q: "What method stores data in the browser using HTML5 Web Storage?", o: ["localStorage.save()","localStorage.setItem()","localStorage.store()","localStorage.write()"], c: 1 },
     { q: "What does the step attribute do on &lt;input type='range'&gt;?", o: ["Sets the minimum value","Sets the maximum value","Controls how much the slider moves per step","Changes the slider color"], c: 2 },
-    { q: "What does getContext('2d') return when used on a canvas element?", o: ["The canvas HTML element","A 2D drawing context object","The canvas width and height","A list of colors"], c: 1 }
+    { q: "What does getContext('2d') return when used on a canvas element?", o: ["The canvas HTML element","A 2D drawing context object","The canvas width and height","A list of colors"], c: 1 },
+    { q: "What is the purpose of data attributes in HTML?", o: ["To style elements","To store custom user data attached to elements","To create form submissions","To trigger animations"], c: 1 },
+    { q: "How do you name a data attribute correctly?", o: ["data_name","data-name","data.name","dataname"], c: 1 },
+    { q: "Which input type is best for selecting a date?", o: ["type='text'","type='calendar'","type='date'","type='datetime'"], c: 2 },
+    { q: "What does the sandbox attribute do on an &lt;iframe&gt;?", o: ["Speeds up loading","Restricts permissions of embedded content","Adds a border around it","Hides the iframe"], c: 1 },
+    { q: "Can you store large amounts of data with localStorage?", o: ["Yes, unlimited","No, typically 5-10MB limit","Only text, no objects","Only numbers"], c: 1 },
+    { q: "What is sessionStorage used for?", o: ["Permanent browser storage","Temporary storage cleared when tab closes","Caching CSS files","Storing server session IDs"], c: 1 },
+    { q: "What input type provides a slider control?", o: ["type='slider'","type='range'","type='scroll'","type='drag'"], c: 1 },
+    { q: "Can a canvas element display text?", o: ["No, only shapes","Yes, using context.fillText()","Only with external JavaScript library","Canvas can't be used for text"], c: 1 },
+    { q: "What does contentEditable attribute do?", o: ["Makes elements editable in the browser","Enables some edit tools","Stores edited content","Prevents copying"], c: 0 },
+    { q: "What is the &lt;progress&gt; element used for?", o: ["Creating a loading bar animation","Showing task completion percentage","Starting download progress","Measuring runtime"], c: 1 },
+    { q: "What does an &lt;iframe&gt; title attribute improve?", o: ["Visual appearance","SEO ranking","Accessibility for screen reader users","Loading speed"], c: 2 }
 ]
             }
         ]
@@ -538,7 +605,18 @@ document.write("&lt;h1&gt;Hello!&lt;/h1&gt;"); // Writes directly to the page</p
     { q: "What platform allows JavaScript to run on a server?", o: ["Apache","Django","Node.js","PHP"], c: 2 },
     { q: "What is pseudocode?", o: ["A broken JavaScript program","A description of steps in plain language before writing code","A type of HTML comment","A CSS variable"], c: 1 },
     { q: "What does a semicolon do at the end of a JavaScript statement?", o: ["Starts a new function","Marks the end of a statement","Creates a comment","Closes a block"], c: 1 },
-    { q: "Which of these is NOT a valid way to open DevTools in a browser?", o: ["Pressing F12","Right-clicking and choosing Inspect","Pressing Ctrl+Shift+I","Pressing Ctrl+S"], c: 3 }
+    { q: "Which of these is NOT a valid way to open DevTools in a browser?", o: ["Pressing F12","Right-clicking and choosing Inspect","Pressing Ctrl+Shift+I","Pressing Ctrl+S"], c: 3 },
+    { q: "Can JavaScript be used on the backend?", o: ["No, only in browsers","Yes, with Node.js","Only with special plugins","Only in React"], c: 1 },
+    { q: "What was JavaScript originally called?", o: ["JavaCode","Mocha","LiveScript","InternetScript"], c: 2 },
+    { q: "What does DOM stand for?", o: ["Data Object Model","Document Object Model","Dynamic Operating Mode","Digital Output Model"], c: 1 },
+    { q: "Which company created JavaScript?", o: ["Microsoft","Google","Netscape","Apple"], c: 2 },
+    { q: "What year was JavaScript created?", o: ["1990","1995","2000","2010"], c: 1 },
+    { q: "Is JavaScript a compiled or interpreted language?", o: ["Compiled","Interpreted","Both","Neither"], c: 1 },
+    { q: "Can JavaScript access files on your computer?", o: ["Yes, freely","No, for security reasons","Only with permission","Only text files"], c: 1 },
+    { q: "What does JavaScript do when you press Enter in a console?", o: ["Saves the file","Executes the code","Clears the console","Sends data to server"], c: 1 },
+    { q: "What is the correct file extension for JavaScript files?", o: [".txt",".js",".javascript",".script"], c: 1 },
+    { q: "How many times should you declare the same variable?", o: ["As many times as needed","Once in the same scope","Whenever you use it","Never"], c: 1 },
+    { q: "What does the 'use strict' directive do?", o: ["Enforces stricter parsing","Speeds up code","Enables all features","Disables HTML"], c: 0 }
 ]
             },
             {
@@ -609,7 +687,18 @@ typeof function(){} // "function"</pre>
     { q: "Which is the modern block-scoped variable that CAN be reassigned?", o: ["var","let","const","def"], c: 1 },
     { q: "What does parseInt('42px') return?", o: ["Error","'42px'","NaN","42"], c: 3 },
     { q: "What does Boolean(0) return?", o: ["true","false","0","null"], c: 1 },
-    { q: "What does typeof [] return in JavaScript?", o: ["array","list","object","undefined"], c: 2 }
+    { q: "What does typeof [] return in JavaScript?", o: ["array","list","object","undefined"], c: 2 },
+    { q: "What are the different data types in JavaScript?", o: ["Only String and Number","String, Number, Boolean, null, undefined, Object, Symbol","Only primitive types","String, Number, Array"], c: 1 },
+    { q: "What does NaN stand for?", o: ["Not a Node","Not a Number","Null and Nothing","Negative Array Notation"], c: 1 },
+    { q: "How do you check if a value is NaN?", o: ["value === NaN","isNaN(value)","value == 'NaN'","typeof value === NaN"], c: 1 },
+    { q: "What is the difference between null and undefined?", o: ["No difference","null is assigned by programmer, undefined is default","undefined is assigned, null is default","They're for different types"], c: 1 },
+    { q: "Can you change a const variable after declaring it?", o: ["Yes, always","No, it's constant","Only if you reassign","Only in objects"], c: 1 },
+    { q: "What happens when you try to add a string and a number?", o: ["Error","The number is converted to string and concatenated","The string is converted to number","Returns undefined"], c: 1 },
+    { q: "What does '5' + 3 evaluate to?", o: ["8","'53'","Error","undefined"], c: 1 },
+    { q: "What does 5 + '3' evaluate to?", o: ["8","'53'","Error","undefined"], c: 1 },
+    { q: "What do you call converting between data types?", o: ["Parsing","Type casting","Boxing","Serializing"], c: 1 },
+    { q: "What does String(123) return?", o: ["123","'123'","Error","NaN"], c: 1 },
+    { q: "Is 'length' a property or method?", o: ["Method, must call it","Property, use dot notation","Both","Neither"], c: 1 }
 ]
             },
             {
@@ -680,7 +769,18 @@ name.includes("lic")      // true</pre>
     { q: "What does 5 === '5' evaluate to?", o: ["true","false","undefined","Error"], c: 1 },
     { q: "What does confirm() return when the user clicks Cancel?", o: ["null","undefined","true","false"], c: 3 },
     { q: "What does the ?? operator do?", o: ["Checks strict equality","Returns right side if left is null or undefined","Logical AND","Converts to boolean"], c: 1 },
-    { q: "What is the result of: 2 ** 8?", o: ["16","64","256","512"], c: 2 }
+    { q: "What is the result of: 2 ** 8?", o: ["16","64","256","512"], c: 2 },
+    { q: "What does the || operator mean?", o: ["AND","OR","NOT","XOR"], c: 1 },
+    { q: "What does ! do to a boolean?", o: ["Converts to number","Negates/flips it","Returns opposite value","No effect"], c: 1 },
+    { q: "What is the result of: true && false?", o: ["true","false","null","undefined"], c: 1 },
+    { q: "What is the result of: true || false?", o: ["true","false","null","undefined"], c: 0 },
+    { q: "Does == do type coercion?", o: ["No","Yes, it's why === is better","Only for strings","Only for numbers"], c: 1 },
+    { q: "What does prompt() show to the user?", o: ["A popup window","The browser console","The DevTools","The address bar"], c: 0 },
+    { q: "Can prompt() be used for passwords?", o: ["Yes, safely","No, text is visible (use proper forms)","Only with HTTPS","Only in Node.js"], c: 1 },
+    { q: "What comparison operator checks if two values are NOT equal?", o: ["=","!=","!==","<"], c: 1 },
+    { q: "Is '' == false true or false?", o: ["true, loose equality","false, strict equality","undefined","Error"], c: 0 },
+    { q: "What's the difference between == and ===?", o: ["No difference","== does type coercion, === is strict","=== is deprecated","They work only with numbers"], c: 1 },
+    { q: "What does the ternary operator ? : do?", o: ["Creates a range","Conditional expression (if ? then : else)","Combines two values","Creates a loop"], c: 1 }
 ]
             },
             {
@@ -774,7 +874,18 @@ for (let key in person) {
     { q: "What is the ternary operator syntax?", o: ["if(cond) ? val1 : val2","cond ? val1 : val2","cond ?? val1 : val2","cond : val1 ? val2"], c: 1 },
     { q: "Which loop always executes its body at least once?", o: ["for","while","do...while","for...of"], c: 2 },
     { q: "What does 'for...in' iterate over?", o: ["Array values","String characters","Object keys","Numbers in a range"], c: 2 },
-    { q: "In a switch statement, what does the 'default' case do?", o: ["Always runs first","Runs when no other case matches","Stops the switch","Is required in every switch"], c: 1 }
+    { q: "In a switch statement, what does the 'default' case do?", o: ["Always runs first","Runs when no other case matches","Stops the switch","Is required in every switch"], c: 1 },
+    { q: "What happens in a switch without 'break'?", o: ["An error occurs","Execution continues to next case (fall-through)","The switch ends","It repeats"], c: 1 },
+    { q: "Can you nest if statements inside each other?", o: ["No, not allowed","Yes, but it's not recommended","Yes, and it's common","Only inside functions"], c: 2 },
+    { q: "Which is more efficient: one while loop or nested for loops?", o: ["While loops","For loops","Depends on the situation","They're identical"], c: 2 },
+    { q: "What does a while(true) loop do?", o: ["Executes once","Loops forever (infinite loop)","Never executes","Stops after 1 iteration"], c: 1 },
+    { q: "How can you exit an infinite loop?", o: ["You can't","With break or return","By pressing Enter","By reopening the browser"], c: 1 },
+    { q: "What's the difference between 'if' and 'else if'?", o: ["No difference","else if only runs if previous if was false","if only runs once","else if is older syntax"], c: 1 },
+    { q: "Can you have multiple 'else if' statements?", o: ["No, only one","Yes, as many as needed","Only two","Only in modern JavaScript"], c: 1 },
+    { q: "Does a for loop require a condition?", o: ["Yes, always","No, all three parts are optional","Only the init part","Only the increment part"], c: 1 },
+    { q: "What does break do in a switch?", o: ["Exits the switch block","Stops the program","Restarts the switch","Skips to next case"], c: 0 },
+    { q: "Is the else block required in an if statement?", o: ["Yes, always","No, it's optional","Only for numbers","Only for strings"], c: 1 },
+    { q: "What's the range of a for loop: for(let i=0; i<5; i++)?", o: ["0-5","0-4","1-5","0-5 including 5"], c: 1 }
 ]
             },
             {
@@ -854,7 +965,18 @@ nums.some(n => n > 4)                 // true</pre>
     { q: "What does .filter() return?", o: ["A single value","The first matching item","A new array with only items that pass the test","The index of matching items"], c: 2 },
     { q: "What is function hoisting?", o: ["Moving functions to the bottom","Function declarations can be called before they are defined","Making functions run faster","A type of arrow function"], c: 1 },
     { q: "What does .reduce() do?", o: ["Removes items from an array","Transforms each item","Accumulates array values into a single result","Sorts the array"], c: 2 },
-    { q: "What does .find() return if no match is found?", o: ["null","false","0","undefined"], c: 3 }
+    { q: "What does .find() return if no match is found?", o: ["null","false","0","undefined"], c: 3 },
+    { q: "What is a callback function?", o: ["A function that prints output","A function passed to another function to be called later","A function that only returns values","A type of arrow function"], c: 1 },
+    { q: "Can a function have no parameters?", o: ["No, at least one is required","Yes, they're optional","Only arrow functions allow this","Only in modern JavaScript"], c: 1 },
+    { q: "What does the spread operator (...) do in function calls?", o: ["Creates a copy","Expands an array into individual arguments","Joins arrays","Removes duplicates"], c: 1 },
+    { q: "What is a pure function?", o: ["A function with perfect syntax","Function with no side effects, same input = same output","A function without parameters","A built-in JavaScript function"], c: 1 },
+    { q: "Can functions return other functions?", o: ["No, not allowed","Yes, this is called higher-order function","Only with arrow functions","Only in modern browsers"], c: 1 },
+    { q: "What does .forEach() do?", o: ["Returns a filtered array","Loops through each item and executes a callback","Finds the first match","Sorts arrays"], c: 1 },
+    { q: "What is the difference between parameters and arguments?", o: ["No difference","Parameters are in definition, arguments are passed when calling","Arguments are in definition, parameters are passed","Arguments are permanent, parameters are temporary"], c: 1 },
+    { q: "What does .some() return?", o: ["The first matching item","An array of matches","true if at least one item matches, false otherwise","The number of matches"], c: 2 },
+    { q: "What does .every() check?", o: ["If array has items","If all items pass a test","If any item passes a test","The array length"], c: 1 },
+    { q: "Can you declare a function inside another function?", o: ["No","Yes, it will have its own scope","Only with arrow functions","Only at the top level"], c: 1 },
+    { q: "What does an anonymous function do?", o: ["Throws errors frequently","A function without a name, often used as callback","A function that disappears","A function with no parameters"], c: 1 }
 ]
             },
             {
@@ -946,7 +1068,17 @@ function buggyAdd(a, b) {
     { q: "What does console.table() do?", o: ["Draws an HTML table","Displays arrays or objects as a formatted table in the console","Logs only table elements","Creates a database table"], c: 1 },
     { q: "Which error type is thrown when calling a method on null?", o: ["ReferenceError","SyntaxError","TypeError","NullError"], c: 2 },
     { q: "What is the catch block's parameter such as catch(error)?", o: ["A string message","The line number of the error","The error object with name and message","The type of error only"], c: 2 },
-    { q: "What do console.time() and console.timeEnd() measure?", o: ["The current time","How long a block of code takes to execute","Memory usage","Network speed"], c: 1 }
+    { q: "What do console.time() and console.timeEnd() measure?", o: ["The current time","How long a block of code takes to execute","Memory usage","Network speed"], c: 1 },
+    { q: "What is a RangeError?", o: ["Using a variable out of scope","A number outside the acceptable range (like invalid array length)","Using a string instead of a number","Calling a function with too many arguments"], c: 1 },
+    { q: "Can you nest try/catch blocks?", o: ["No, it's not allowed","Yes, a try inside a catch is valid","Only with finally blocks","Only in advanced JavaScript"], c: 1 },
+    { q: "What does the Error object contain?", o: ["Only the error message","name, message, and stack properties","Only the line number","Only the function name"], c: 1 },
+    { q: "How do you open the browser DevTools console?", o: ["F1","F12 or Ctrl+Shift+I","Ctrl+Alt+J","Right-click and select 'Debug'"], c: 1 },
+    { q: "What does console.trace() display?", o: ["A table of data","The current call stack showing how the code reached this point","The execution time","All variables in scope"], c: 1 },
+    { q: "What happens if catch never runs in try/catch?", o: ["The program crashes","The code inside catch is ignored and program continues","The finally block doesn't run","An error is forced"], c: 1 },
+    { q: "What's the best practice for error handling in functions?", o: ["Let errors crash the app","Try to catch specific error types and handle them appropriately","Never use try/catch","Only use finally blocks"], c: 1 },
+    { q: "What does console.assert() do?", o: ["Confirms a variable exists","Tests if a condition is true and logs a message if false","Converts a value to a string","Asserts that an error occurred"], c: 1 },
+    { q: "Can you re-throw an error in a catch block?", o: ["No, once caught it's handled","Yes, you can throw it again for outer handlers","Only in specific browsers","Only with finally"], c: 1 },
+    { q: "What's the call stack in DevTools used for?", o: ["Storing function return values","Showing the sequence of function calls that led to the current point","Storing global variables","Tracking memory usage"], c: 1 }
 ]
             }
         ]
@@ -998,7 +1130,7 @@ function renderTrack(trackId) {
 
     track.modules.forEach((mod, idx) => {
         const isCompleted = state.completed.includes(mod.id);
-        const isLocked = state.xp < RANK_XP_REQ[mod.rank];
+        const isLocked = state.trackXp[state.currentTrack] < RANK_XP_REQ[mod.rank];
 
         const row = document.createElement('div');
         row.className = `module-row ${RANK_ROW[mod.rank]} ${isLocked ? 'locked' : ''} ${isCompleted ? 'completed' : ''}`;
@@ -1045,9 +1177,18 @@ function renderReviewer(mod) {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  QUIZ
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function selectRandomQuestions(pool, count) {
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
 function startQuiz() {
     const mod = state.currentModule;
-    state.quiz = { q: 0, correct: 0, answered: 0, selected: null };
+    state.quiz = { q: 0, correct: 0, answered: 0, selected: null, questions: [] };
+    
+    // Select 10 random questions from the question pool
+    state.quiz.questions = selectRandomQuestions(mod.questions, 10);
+    
     showScreen('quiz');
 
     const rankTag = document.getElementById('quiz-rank-tag');
@@ -1060,8 +1201,8 @@ function startQuiz() {
 
 function loadQuestion() {
     const mod = state.currentModule;
-    const q = mod.questions[state.quiz.q];
-    const total = mod.questions.length;
+    const q = state.quiz.questions[state.quiz.q];
+    const total = state.quiz.questions.length;
 
     document.getElementById('quiz-counter').textContent = `Question ${state.quiz.q + 1} / ${total}`;
     document.getElementById('quiz-progress-fill').style.width = ((state.quiz.q / total) * 100) + '%';
@@ -1095,11 +1236,11 @@ function loadQuestion() {
 
 function submitAnswer() {
     const mod = state.currentModule;
-    const q = mod.questions[state.quiz.q];
+    const q = state.quiz.questions[state.quiz.q];
     const correct = state.quiz.selected === q.c;
 
     state.quiz.answered++;
-    if (correct) { state.quiz.correct++; state.xp += XP_PER_CORRECT; }
+    if (correct) { state.quiz.correct++; state.trackXp[state.currentTrack] += XP_PER_CORRECT; }
 
     // Style options
     const opts = document.querySelectorAll('.option');
@@ -1120,7 +1261,7 @@ function submitAnswer() {
 
     document.getElementById('quiz-score-live').innerHTML = `&#x2B50; ${state.quiz.correct}`;
 
-    const isLast = state.quiz.q >= mod.questions.length - 1;
+    const isLast = state.quiz.q >= state.quiz.questions.length - 1;
     const btn = document.getElementById('quiz-submit');
     btn.disabled = false;
     btn.textContent = isLast ? 'Finish Quiz' : 'Next Question';
@@ -1147,8 +1288,8 @@ function finishQuiz() {
 
     // Only add XP if passed 60%
     if (pct < 0.6) {
-        state.xp -= score * XP_PER_CORRECT;
-        if (state.xp < 0) state.xp = 0;
+        state.trackXp[state.currentTrack] -= score * XP_PER_CORRECT;
+        if (state.trackXp[state.currentTrack] < 0) state.trackXp[state.currentTrack] = 0;
     }
 
     // Show result
@@ -1178,8 +1319,9 @@ function finishQuiz() {
 //  UI UPDATES
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateHeaderStats() {
-    document.getElementById('xp').textContent = state.xp;
-    document.getElementById('level').textContent = Math.floor(state.xp / 100) + 1;
+    const currentXp = state.trackXp[state.currentTrack] || 0;
+    document.getElementById('xp').textContent = currentXp;
+    document.getElementById('level').textContent = Math.floor(currentXp / 100) + 1;
     document.getElementById('completedCount').textContent = state.completed.length;
 }
 
@@ -1280,7 +1422,7 @@ function showGate(mod) {
 function enterGate() {
     document.getElementById('gateOverlay').style.display = 'none';
     if (pendingMod) {
-        state.xp += 50;
+        state.trackXp[state.currentTrack] += 50;
         updateHeaderStats();
         launchGateQuiz(pendingMod);
         pendingMod = null;
