@@ -6,12 +6,27 @@
     <title>CompSci Leveling</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDKs loaded via ES module in script.js -->
+    <!-- when using module syntax the app script tag below must include type="module" -->
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="screen-login" class="screen active">
+    <div class="container" style="max-width:400px; text-align:center;">
+        <h1>Login / Register</h1>
+        <input id="login-email" type="email" placeholder="Email" style="width:100%;padding:10px;margin:8px 0;" />
+        <input id="login-password" type="password" placeholder="Password" style="width:100%;padding:10px;margin:8px 0;" />
+        <button class="btn btn-primary" onclick="login()" style="width:100%;margin-top:12px;">Login</button>
+        <button class="btn btn-outline" onclick="register()" style="width:100%;margin-top:6px;">Register</button>
+    </div>
+</div>
 
 <!-- HEADER -->
 <header class="header">
     <div class="logo">&#x2694;&#xFE0F; CompSci Leveling</div>
+    <button id="logout-btn" class="btn btn-outline" style="font-size:12px;display:none;" onclick="logout()">Logout</button>
+    <div id="user-email" style="font-size:12px;color:var(--muted);margin-right:12px;"></div>
     <div class="stats">
         <div class="stat-item">&#x26A1; <span id="xp">0</span> XP</div>
         <div class="stat-item">&#x1F4C8; HTML EXP <span id="exp-html">0</span></div>
@@ -22,7 +37,7 @@
 </header>
 
 <!-- SCREEN: MAIN MENU -->
-<div id="screen-main" class="screen active">
+<div id="screen-main" class="screen">
     <div class="container">
         <!-- ══ ABOUT SECTION ══ -->
         <section class="about-section">
@@ -252,6 +267,6 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
 </body>
 </html>

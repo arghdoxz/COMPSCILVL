@@ -21,6 +21,29 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* LOGIN SCREEN STYLES */
+#screen-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+#screen-login .container {
+    background: var(--panel);
+    padding: 32px;
+    border-radius: 12px;
+}
+#screen-login input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    color: var(--text);
+    margin: 6px 0;
+}
+#screen-login button { margin-top: 6px; }
+
 body {
     font-family: 'Rajdhani', sans-serif;
     background: var(--bg);
@@ -39,6 +62,18 @@ body::before {
     pointer-events: none;
     z-index: 0;
 }
+
+/* LOGIN SCREEN */
+#screen-login .container {
+    margin-top: 80px;
+}
+#screen-login input {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+}
+#screen-login button { margin-top: 6px; }
 
 /* HEADER */
 .header {

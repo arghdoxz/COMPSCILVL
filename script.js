@@ -1,3 +1,13 @@
+// Firebase modular imports – switch to type="module" on the script tag
+// firebase utility module handles initialization and exports
+import {
+    auth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut
+} from './firebase.js';
+
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  STATE
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -11,6 +21,41 @@ const state = {
     // each track keeps its own EXP storage (cumulative points earned)
     expStorage: { html: 0, js: 0 }
 };
+
+// authentication state changes are handled by firebase.js
+onAuthStateChanged(auth, user => {
+    const emailEl = document.getElementById('user-email');
+    if (user) {
+        console.log("Logged in as", user.email);
+        document.getElementById('logout-btn').style.display = 'inline-block';
+        if (emailEl) emailEl.textContent = user.email;
+        showScreen('main');
+    } else {
+        console.log("Not logged in");
+        document.getElementById('logout-btn').style.display = 'none';
+        if (emailEl) emailEl.textContent = '';
+        showScreen('login');
+    }
+});
+
+function login() {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
+    signInWithEmailAndPassword(auth, email, pass)
+        .catch(err => alert(err.message));
+}
+
+function register() {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
+    createUserWithEmailAndPassword(auth, email, pass)
+        .catch(err => alert(err.message));
+}
+
+function logout() {
+    signOut(auth);
+}
+
 
 const RANKS = ['F','E','D','C','B','A','S'];
 const RANK_COLORS = { F:'rank-f', E:'rank-e', D:'rank-d', C:'rank-c', B:'rank-b', A:'rank-a', S:'rank-s' };
