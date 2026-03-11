@@ -2,6 +2,10 @@
 // firebase utility module handles initialization and exports
 import {
     auth,
+    db,
+    doc,
+    setDoc,
+    getDoc,
     onAuthStateChanged,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -22,32 +26,84 @@ const state = {
     expStorage: { html: 0, js: 0 }
 };
 
+// ─────────────────────────────────────────────
+//  SAVE / LOAD PROGRESS (Firestore)
+// ─────────────────────────────────────────────
+async function saveProgress() {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+        await setDoc(doc(db, 'progress', user.uid), {
+            trackXp:    state.trackXp,
+            expStorage: state.expStorage,
+            completed:  state.completed,
+        });
+    } catch (e) {
+        console.error('Save failed:', e);
+    }
+}
+
+async function loadProgress(uid) {
+    try {
+        const snap = await getDoc(doc(db, 'progress', uid));
+        if (snap.exists()) {
+            const data = snap.data();
+            state.trackXp    = data.trackXp    || { html: 0, js: 0 };
+            state.expStorage = data.expStorage || { html: 0, js: 0 };
+            state.completed  = data.completed  || [];
+        }
+    } catch (e) {
+        console.error('Load failed:', e);
+    }
+}
+
 // authentication state changes are handled by firebase.js
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
     const emailEl = document.getElementById('user-email');
+    const header = document.getElementById('main-header');
     if (user) {
         console.log("Logged in as", user.email);
+        if (header) header.style.display = 'flex';
         document.getElementById('logout-btn').style.display = 'inline-block';
         if (emailEl) emailEl.textContent = user.email;
+        await loadProgress(user.uid);
+        updateHeaderStats();
+        updateTrackProgress();
+        checkSRankUnlock();
         showScreen('main');
+        setTimeout(() => {
+            const el = document.getElementById('track-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
     } else {
         console.log("Not logged in");
+        if (header) header.style.display = 'none';
         document.getElementById('logout-btn').style.display = 'none';
         if (emailEl) emailEl.textContent = '';
+        // Reset state on logout
+        state.trackXp    = { html: 0, js: 0 };
+        state.expStorage = { html: 0, js: 0 };
+        state.completed  = [];
+        state.currentTrack  = null;
+        state.currentModule = null;
+        updateHeaderStats();
+        updateTrackProgress();
         showScreen('login');
     }
 });
 
 function login() {
     const email = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-password').value;
+    const pass  = document.getElementById('login-password').value;
+    if (!email || !pass) { alert('Please enter email and password.'); return; }
     signInWithEmailAndPassword(auth, email, pass)
         .catch(err => alert(err.message));
 }
 
 function register() {
     const email = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-password').value;
+    const pass  = document.getElementById('login-password').value;
+    if (!email || !pass) { alert('Please enter email and password.'); return; }
     createUserWithEmailAndPassword(auth, email, pass)
         .catch(err => alert(err.message));
 }
@@ -1136,9 +1192,14 @@ function buggyAdd(a, b) {
 //  NAVIGATION
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + id).classList.add('active');
-    window.scrollTo(0, 0);
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+    });
+    const el = document.getElementById('screen-' + id);
+    el.style.display = '';
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function goBack(to) {
@@ -1320,6 +1381,7 @@ function submitAnswer() {
     btn.onclick = isLast ? finishQuiz : nextQuestion;
 
     updateHeaderStats();
+    saveProgress();
 }
 
 function nextQuestion() {
@@ -1364,6 +1426,7 @@ function finishQuiz() {
     updateHeaderStats();
     updateTrackProgress();
     checkSRankUnlock();
+    saveProgress();
     showScreen('result');
 }
 
@@ -1507,6 +1570,7 @@ function enterGate() {
         state.expStorage.js  += 100;
         updateHeaderStats();
         updateTrackProgress(); // in case the bonus unlocked modules on the other track
+        saveProgress();
         launchGateQuiz(pendingMod);
         pendingMod = null;
     }
@@ -1565,3 +1629,18 @@ function launchGateQuiz(originMod) {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 updateHeaderStats();
 updateTrackProgress();
+// Expose functions to global scope (required because this file is a module)
+window.login = login;
+window.register = register;
+window.logout = logout;
+window.selectTrack = selectTrack;
+window.openModule = openModule;
+window.startQuiz = startQuiz;
+window.submitAnswer = submitAnswer;
+window.nextQuestion = nextQuestion;
+window.finishQuiz = finishQuiz;
+window.goBack = goBack;
+window.openSandbox = openSandbox;
+window.runSandbox = runSandbox;
+window.enterGate = enterGate;
+window.declineGate = declineGate;
