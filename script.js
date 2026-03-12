@@ -22,9 +22,36 @@ const state = {
     currentTrack: null,
     currentModule: null,
     quiz: { q: 0, correct: 0, answered: 0, selected: null, questions: [] },
+    isMini: false,                        // track whether current quiz is the mini challenge
+    lastGateTime: 0,                     // for gate cooldown
     // each track keeps its own EXP storage (cumulative points earned)
     expStorage: { html: 0, js: 0 }
 };
+
+// session-storage helpers
+function saveSession() {
+    try {
+        sessionStorage.setItem('appState', JSON.stringify(state));
+    } catch (e) {
+        console.warn('session save failed', e);
+    }
+}
+
+function loadSession() {
+    try {
+        const raw = sessionStorage.getItem('appState');
+        if (raw) {
+            const obj = JSON.parse(raw);
+            // shallow merge so we don't overwrite functions/etc
+            Object.assign(state, obj);
+        }
+    } catch (e) {
+        console.warn('session load failed', e);
+    }
+}
+
+// load state from session storage right away (before any UI renders)
+loadSession();
 
 // ─────────────────────────────────────────────
 //  SAVE / LOAD PROGRESS (Firestore)
@@ -41,7 +68,9 @@ async function saveProgress() {
     } catch (e) {
         console.error('Save failed:', e);
     }
+    saveSession();
 }
+
 
 async function loadProgress(uid) {
     try {
@@ -88,6 +117,7 @@ onAuthStateChanged(auth, async user => {
         state.currentModule = null;
         updateHeaderStats();
         updateTrackProgress();
+        sessionStorage.removeItem('appState');
         showScreen('login');
     }
 });
@@ -195,7 +225,22 @@ const tracks = {
     { q: "What does a browser do if &lt;!DOCTYPE html&gt; is missing?", o: ["Shows an error","Uses 'quirks mode' and may behave unexpectedly","Ignores the page entirely","Automatically adds it"], c: 1 },
     { q: "Which attribute specifies the language of the document?", o: ["language","locale","lang","dialect"], c: 2 },
     { q: "Is &lt;meta charset='UTF-8'&gt; optional?", o: ["Yes, not necessary","No, it's required for proper character display","Only for international sites","Only for mobile devices"], c: 1 },
-    { q: "What is the role of the &lt;html&gt; root element?", o: ["Just a container, no real purpose","Tells browser this is HTML and wraps all content","Creates the page title","Defines page styling"], c: 1 }
+    { q: "What is the role of the &lt;html&gt; root element?", o: ["Just a container, no real purpose","Tells browser this is HTML and wraps all content","Creates the page title","Defines page styling"], c: 1 },
+    // fill-in-the-blank question derived from reviewer
+    { type: 'fill', q: "HTML stands for ___", correct: "HyperText Markup Language" },
+    // code debugging challenge: user must fix the missing closing tag
+    {
+        type: 'code',
+        q: "The following HTML snippet is missing something. Edit the code so it is valid:",
+        template: "<h1>Welcome to HTML", 
+        correctCode: "<h1>Welcome to HTML</h1>"
+    },
+    {
+        type: 'code',
+        q: "This JavaScript code has a syntax error. Correct it so the console.log runs:",
+        template: "console.log('Hello world'", 
+        correctCode: "console.log('Hello world');"
+    }
 ]
             },
             {
@@ -1185,10 +1230,23 @@ function buggyAdd(a, b) {
 ]
             }
         ]
+    },
+    s: {
+        title: '&#x2728; S Rank Challenge',
+        subtitle: 'Final exam covering every module from both tracks.',
+        modules: [
+            {
+                id: 's1', rank: 'S', num: 1,
+                name: 'S Rank Final Exam',
+                desc: 'Answer questions drawn from every module in both tracks. 40 challenges await!',
+                reviewer: '<p>This is it – the ultimate test. When you start the quiz, you will receive 40 questions covering all HTML and JS modules. Good luck!</p>',
+                questions: []
+            }
+        ]
     }
 };
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€”
 //  NAVIGATION
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showScreen(id) {
@@ -1255,7 +1313,14 @@ function renderTrack(trackId) {
 
         if (!isLocked) {
             row.onclick = () => {
-                if (Math.random() < 0.1) { showGate(mod); return; }
+                const now = Date.now();
+                const COOLDOWN = 10 * 60 * 1000; // 10 minutes in ms
+                // only trigger gate if random chance passes and cooldown expired
+                if (Math.random() < 0.1 && now - (state.lastGateTime || 0) > COOLDOWN) {
+                    state.lastGateTime = now;
+                    showGate(mod);
+                    return;
+                }
                 openModule(mod);
             };
         }
@@ -1294,16 +1359,55 @@ function selectRandomQuestions(pool, count) {
 function startQuiz() {
     const mod = state.currentModule;
     state.quiz = { q: 0, correct: 0, answered: 0, selected: null, questions: [] };
+
+    if (mod.id === 's1') {
+        // final S‑rank quiz: gather every question from both tracks
+        const allQuestions = [];
+        ['html', 'js'].forEach(trackId => {
+            tracks[trackId].modules.forEach(m => {
+                if (Array.isArray(m.questions)) {
+                    m.questions.forEach(q => allQuestions.push(q));
+                }
+            });
+        });
+        // shuffle
+        for (let i = allQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+        }
+        state.quiz.questions = allQuestions.slice(0, 40);
+    } else {
+        // Select 10 random questions from the question pool
+        state.quiz.questions = selectRandomQuestions(mod.questions, 10);
+    }
     
-    // Select 10 random questions from the question pool
-    state.quiz.questions = selectRandomQuestions(mod.questions, 10);
-    
+    state.isMini = false;
     showScreen('quiz');
 
     const rankTag = document.getElementById('quiz-rank-tag');
     rankTag.textContent = mod.rank + ' RANK';
     rankTag.className = `quiz-rank-tag ${RANK_COLORS[mod.rank]}`;
     document.getElementById('quiz-title-label').textContent = mod.name;
+
+    loadQuestion();
+}
+
+// quick 2–3 question challenge inside the reviewer (SoloLearn style)
+function startMiniQuiz() {
+    const mod = state.currentModule;
+    if (!mod) return;
+
+    state.quiz = { q: 0, correct: 0, answered: 0, selected: null, questions: [] };
+    state.quiz.questions = selectRandomQuestions(mod.questions, 5); // now 5-question quick challenge
+
+    state.isMini = true;
+    showScreen('quiz');
+
+    document.getElementById('quiz-counter').textContent = 'Mini Challenge';
+    document.getElementById('quiz-title-label').textContent = mod.name + ' (quick test)';
+    const rankTag = document.getElementById('quiz-rank-tag');
+    rankTag.textContent = mod.rank + ' RANK';
+    rankTag.className = `quiz-rank-tag ${RANK_COLORS[mod.rank]}`;
 
     loadQuestion();
 }
@@ -1317,8 +1421,9 @@ function loadQuestion() {
     document.getElementById('quiz-progress-fill').style.width = ((state.quiz.q / total) * 100) + '%';
     document.getElementById('quiz-score-live').innerHTML = `&#x2B50; ${state.quiz.correct}`;
     document.getElementById('quiz-question').innerHTML = q.q;
-    document.getElementById('quiz-feedback').className = 'quiz-feedback hidden';
-    document.getElementById('quiz-feedback').textContent = '';
+    const fbEl = document.getElementById('quiz-feedback');
+    fbEl.className = 'quiz-feedback hidden';
+    fbEl.textContent = '';
 
     const btn = document.getElementById('quiz-submit');
     btn.disabled = true;
@@ -1329,48 +1434,98 @@ function loadQuestion() {
 
     const opts = document.getElementById('quiz-options');
     opts.innerHTML = '';
-    q.o.forEach((opt, i) => {
-        const d = document.createElement('div');
-        d.className = 'option';
-        d.innerHTML = opt;
-        d.onclick = () => {
-            opts.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
-            d.classList.add('selected');
-            state.quiz.selected = i;
-            document.getElementById('quiz-submit').disabled = false;
+
+    if (q.type === 'fill') {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'fill-input';
+        inp.placeholder = 'Type your answer...';
+        inp.oninput = () => {
+            state.quiz.selected = inp.value;
+            btn.disabled = inp.value.trim() === '';
         };
-        opts.appendChild(d);
-    });
+        opts.appendChild(inp);
+    } else if (q.type === 'code') {
+        const ta = document.createElement('textarea');
+        ta.className = 'code-challenge';
+        ta.value = q.template || '';
+        ta.oninput = () => {
+            state.quiz.selected = ta.value;
+            btn.disabled = ta.value.trim() === '';
+        };
+        opts.appendChild(ta);
+    } else {
+        q.o.forEach((opt, i) => {
+            const d = document.createElement('div');
+            d.className = 'option';
+            d.innerHTML = opt;
+            d.onclick = () => {
+                opts.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+                d.classList.add('selected');
+                state.quiz.selected = i;
+                btn.disabled = false;
+            };
+            opts.appendChild(d);
+        });
+    }
 }
 
 function submitAnswer() {
     const mod = state.currentModule;
     const q = state.quiz.questions[state.quiz.q];
-    const correct = state.quiz.selected === q.c;
+    let correct = false;
 
-    state.quiz.answered++;
-    if (correct) { 
-        state.quiz.correct++; 
-        state.trackXp[state.currentTrack] += XP_PER_CORRECT; 
-        state.expStorage[state.currentTrack] += XP_PER_CORRECT; // record to EXP storage
+    if (q.type === 'fill') {
+        const ans = (state.quiz.selected || '').trim().toLowerCase();
+        const exp = (q.correct || '').trim().toLowerCase();
+        correct = ans === exp;
+    } else if (q.type === 'code') {
+        const ans = (state.quiz.selected || '').trim();
+        const exp = (q.correctCode || '').trim();
+        correct = ans === exp;
+    } else {
+        correct = state.quiz.selected === q.c;
     }
 
-    // Style options
-    const opts = document.querySelectorAll('.option');
-    opts.forEach((el, i) => {
-        el.classList.add('disabled');
-        el.onclick = null;
-        if (i === q.c) el.classList.add('correct');
-        if (i === state.quiz.selected && !correct) el.classList.add('incorrect');
-    });
+    state.quiz.answered++;
+    if (correct) {
+        state.quiz.correct++;
+        if (!state.isMini) {
+            // gate questions reward 30 XP, normal ones 10
+            const per = (state.currentModule && state.currentModule._isGate) ? 30 : XP_PER_CORRECT;
+            state.trackXp[state.currentTrack] += per;
+            state.expStorage[state.currentTrack] += per; // record to EXP storage
+        }
+    }
+
+    // Style options if MCQ
+    if (!q.type || q.type === 'mcq') {
+        const opts = document.querySelectorAll('.option');
+        opts.forEach((el, i) => {
+            el.classList.add('disabled');
+            el.onclick = null;
+            if (i === q.c) el.classList.add('correct');
+            if (i === state.quiz.selected && !correct) el.classList.add('incorrect');
+        });
+    }
 
     // Feedback
     const fb = document.getElementById('quiz-feedback');
     fb.className = `quiz-feedback ${correct ? 'correct-fb' : 'incorrect-fb'}`;
-    fb.textContent = correct ? '&#x2714; Correct! +' + XP_PER_CORRECT + ' XP' : '&#x2718; Incorrect. Study the reviewer!';
+    if (correct) {
+        if (state.isMini) {
+            fb.innerHTML = '&#x2714; Correct! (no XP in quick challenge)';
+        } else {
+            const per = (state.currentModule && state.currentModule._isGate) ? 30 : XP_PER_CORRECT;
+            fb.innerHTML = `&#x2714; Correct! +${per} XP`;
+        }
+    } else {
+        let hint = '';
+        if (q.type === 'fill') hint = ` Answer: ${q.correct}`;
+        else if (q.type === 'code') hint = ` Correct code:<pre>${q.correctCode}</pre>`;
+        fb.innerHTML = `&#x2718; Incorrect. Study the reviewer!${hint}`;
+    }
     fb.classList.remove('hidden');
-    // Fix HTML entities in textContent
-    fb.innerHTML = correct ? `&#x2714; Correct! +${XP_PER_CORRECT} XP` : `&#x2718; Incorrect. Study the reviewer!`;
 
     document.getElementById('quiz-score-live').innerHTML = `&#x2B50; ${state.quiz.correct}`;
 
@@ -1382,6 +1537,8 @@ function submitAnswer() {
 
     updateHeaderStats();
     saveProgress();
+    saveSession();
+    saveSession();
 }
 
 function nextQuestion() {
@@ -1390,18 +1547,25 @@ function nextQuestion() {
 }
 
 function finishQuiz() {
+    // if the quiz was a mini challenge, just bounce back to reviewer
+    if (state.isMini) {
+        state.isMini = false;
+        showScreen('reviewer');
+        return;
+    }
+
     const mod = state.currentModule;
     const score = state.quiz.correct;
-    const total = mod.questions.length;
+    const total = state.quiz.questions.length; // Only the 10 answered questions
     const pct = score / total;
 
-    // Mark completed if passed (>=60%)
-    if (pct >= 0.6 && !state.completed.includes(mod.id) && !mod._isGate) {
+    // Mark completed if passed (>=70%)
+    if (pct >= 0.7 && !state.completed.includes(mod.id) && !mod._isGate) {
         state.completed.push(mod.id);
     }
 
-    // Only add XP if passed 60%
-    if (pct < 0.6) {
+    // Only add XP if passed 70%
+    if (pct < 0.7) {
         state.trackXp[state.currentTrack] -= score * XP_PER_CORRECT;
         if (state.trackXp[state.currentTrack] < 0) state.trackXp[state.currentTrack] = 0;
     }
@@ -1469,6 +1633,7 @@ function updateTrackProgress() {
     const jsDone = tracks.js.modules.filter(m => state.completed.includes(m.id)).length;
     document.getElementById('html-progress').style.width = ((htmlDone / 6) * 100) + '%';
     document.getElementById('js-progress').style.width = ((jsDone / 6) * 100) + '%';
+    saveSession();
 }
 
 function checkSRankUnlock() {
@@ -1546,6 +1711,8 @@ document.addEventListener('keydown', e => {
 //  GATE
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let pendingMod = null;
+// timestamp (ms) of last gate appearance, used to enforce 10‑minute cooldown
+state.lastGateTime = 0;
 
 function showGate(mod) {
     pendingMod = mod;
@@ -1636,6 +1803,7 @@ window.logout = logout;
 window.selectTrack = selectTrack;
 window.openModule = openModule;
 window.startQuiz = startQuiz;
+window.startMiniQuiz = startMiniQuiz;
 window.submitAnswer = submitAnswer;
 window.nextQuestion = nextQuestion;
 window.finishQuiz = finishQuiz;
