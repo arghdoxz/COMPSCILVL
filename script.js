@@ -60,14 +60,14 @@ async function saveProgress() {
     const user = auth.currentUser;
     if (!user) return;
     try {
+        // store the full state object so we can restore everything even after logout/refresh
         await setDoc(doc(db, 'progress', user.uid), {
-            trackXp:    state.trackXp,
-            expStorage: state.expStorage,
-            completed:  state.completed,
+            state
         });
     } catch (e) {
         console.error('Save failed:', e);
     }
+    // keep a local copy as well for fast reloads
     saveSession();
 }
 
@@ -77,9 +77,14 @@ async function loadProgress(uid) {
         const snap = await getDoc(doc(db, 'progress', uid));
         if (snap.exists()) {
             const data = snap.data();
-            state.trackXp    = data.trackXp    || { html: 0, js: 0 };
-            state.expStorage = data.expStorage || { html: 0, js: 0 };
-            state.completed  = data.completed  || [];
+            // merge entire saved state if available, otherwise fall back to old fields
+            if (data.state) {
+                Object.assign(state, data.state);
+            } else {
+                state.trackXp    = data.trackXp    || { html: 0, js: 0 };
+                state.expStorage = data.expStorage || { html: 0, js: 0 };
+                state.completed  = data.completed  || [];
+            }
         }
     } catch (e) {
         console.error('Load failed:', e);
@@ -96,6 +101,8 @@ onAuthStateChanged(auth, async user => {
         document.getElementById('logout-btn').style.display = 'inline-block';
         if (emailEl) emailEl.textContent = user.email;
         await loadProgress(user.uid);
+        // after loading from cloud, update session storage so it's in sync
+        saveSession();
         updateHeaderStats();
         updateTrackProgress();
         checkSRankUnlock();
@@ -1634,6 +1641,7 @@ function updateTrackProgress() {
     document.getElementById('html-progress').style.width = ((htmlDone / 6) * 100) + '%';
     document.getElementById('js-progress').style.width = ((jsDone / 6) * 100) + '%';
     saveSession();
+    saveProgress(); // ensure cloud copy stays current
 }
 
 function checkSRankUnlock() {
@@ -1676,6 +1684,9 @@ console.log("Sandbox ready!");`;
 }
 
 function runSandbox() {
+    // sandbox modifications change state? not really but safe to persist
+    saveSession();
+    saveProgress();
     const html = document.getElementById('sandbox-html').value;
     const css = document.getElementById('sandbox-css').value;
     const js = document.getElementById('sandbox-js').value;
@@ -1705,6 +1716,12 @@ document.addEventListener('keydown', e => {
             runSandbox();
         }
     }
+});
+
+// persist state on unload (refresh/close) so the cloud copy is up to date
+window.addEventListener('beforeunload', () => {
+    saveSession();
+    saveProgress();
 });
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
