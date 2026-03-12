@@ -1392,16 +1392,16 @@ function nextQuestion() {
 function finishQuiz() {
     const mod = state.currentModule;
     const score = state.quiz.correct;
-    const total = mod.questions.length;
+    const total = state.quiz.questions.length; // Only the 10 answered questions
     const pct = score / total;
 
-    // Mark completed if passed (>=60%)
-    if (pct >= 0.6 && !state.completed.includes(mod.id) && !mod._isGate) {
+    // Mark completed if passed (>=70%)
+    if (pct >= 0.7 && !state.completed.includes(mod.id) && !mod._isGate) {
         state.completed.push(mod.id);
     }
 
-    // Only add XP if passed 60%
-    if (pct < 0.6) {
+    // Only add XP if passed 70%
+    if (pct < 0.7) {
         state.trackXp[state.currentTrack] -= score * XP_PER_CORRECT;
         if (state.trackXp[state.currentTrack] < 0) state.trackXp[state.currentTrack] = 0;
     }
