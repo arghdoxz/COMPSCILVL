@@ -13,17 +13,19 @@
 
 <!-- LOGIN SCREEN -->
 <div id="screen-login" class="screen active">
-    <div class="container" style="max-width:400px; text-align:center;">
-        <h1>Login / Register</h1>
-        <input id="login-email" type="email" placeholder="Email" style="width:100%;padding:10px;margin:8px 0;" />
-        <input id="login-password" type="password" placeholder="Password" style="width:100%;padding:10px;margin:8px 0;" />
+    <div class="container" style="max-width:400px; text-align:center; padding-top: 80px;">
+        <div style="font-size:48px; margin-bottom:16px;">&#x2694;&#xFE0F;</div>
+        <h1 style="margin-bottom:8px;">CompSci Leveling</h1>
+        <p style="color:var(--muted); margin-bottom:32px;">Login or create an account to save your progress.</p>
+        <input id="login-email" type="email" placeholder="Email" style="width:100%;padding:10px;margin:8px 0;box-sizing:border-box;" />
+        <input id="login-password" type="password" placeholder="Password" style="width:100%;padding:10px;margin:8px 0;box-sizing:border-box;" />
         <button class="btn btn-primary" onclick="login()" style="width:100%;margin-top:12px;">Login</button>
         <button class="btn btn-outline" onclick="register()" style="width:100%;margin-top:6px;">Register</button>
     </div>
 </div>
 
-<!-- HEADER -->
-<header class="header">
+<!-- HEADER (hidden on login screen, shown after login) -->
+<header class="header" id="main-header" style="display:none;">
     <div class="logo">&#x2694;&#xFE0F; CompSci Leveling</div>
     <button id="logout-btn" class="btn btn-outline" style="font-size:12px;display:none;" onclick="logout()">Logout</button>
     <div id="user-email" style="font-size:12px;color:var(--muted);margin-right:12px;"></div>
@@ -99,7 +101,7 @@
             <div class="about-divider"></div>
         </section>
 
-        <div class="hero">
+        <div class="hero" id="track-section">
             <h1 class="hero-title">Choose Your Path</h1>
             <p class="hero-sub">Master HTML or JavaScript. Climb from F to S rank.</p>
         </div>

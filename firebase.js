@@ -8,25 +8,36 @@ import {
     createUserWithEmailAndPassword,
     signOut
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // configuration copied from your project
 const firebaseConfig = {
-    apiKey: "AIzaSyCUD7Ur8Xpq79y1UF0jYGinfypY7NIorEg",
-    authDomain: "compscileveling.firebaseapp.com",
-    projectId: "compscileveling",
-    storageBucket: "compscileveling.firebasestorage.app",
-    messagingSenderId: "806148574323",
-    appId: "1:806148574323:web:585d7704db0a6cb778ae06",
-    measurementId: "G-MKNXGJ9LQS"
+    apiKey: "AIzaSyBFzjlcsksXYCdYpytUd-WpBT3XwTi9Pic",
+    authDomain: "compscilevel.firebaseapp.com",
+    projectId: "compscilevel",
+    storageBucket: "compscilevel.firebasestorage.app",
+    messagingSenderId: "687287366740",
+    appId: "1:687287366740:web:b1e35b370be4952abbe9c1",
+    measurementId: "G-NVGGES4RJ4"
 };
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // re-export functions for ease of use
 export {
     auth,
+    db,
+    doc,
+    setDoc,
+    getDoc,
     onAuthStateChanged,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
